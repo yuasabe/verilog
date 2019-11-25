@@ -97,8 +97,14 @@ initial begin
 #(CLOCK*1)
   Drdy <= 0;
 
-#(CLOCK*10)
+#(CLOCK*20)
   $finish;
    
 end
+
+initial begin
+  $dumpfile("aes.vcd");
+  $dumpvars(0, AES_TB);
+end
+
 endmodule
