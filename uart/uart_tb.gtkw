@@ -1,0 +1,29 @@
+[*]
+[*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
+[*] Sat Nov 30 13:49:00 2019
+[*]
+[dumpfile] "/home/denjo/Developer/verilog/uart/uart_tb.vcd"
+[dumpfile_mtime] "Sat Nov 30 13:01:38 2019"
+[dumpfile_size] 64931
+[savefile] "/home/denjo/Developer/verilog/uart/uart_tb.gtkw"
+[timestart] 0
+[size] 1920 1013
+[pos] -1 -1
+*-21.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 280
+[signals_width] 282
+[sst_expanded] 1
+[sst_vpaned_height] 288
+@28
+uart_tb.r_clock
+uart_tb.r_rx_serial
+@22
+uart_tb.r_tx_byte[7:0]
+@28
+uart_tb.r_tx_dv
+@22
+uart_tb.w_rx_byte[7:0]
+@28
+uart_tb.w_tx_done
+[pattern_trace] 1
+[pattern_trace] 0
