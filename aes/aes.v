@@ -1,5 +1,6 @@
 
 `include "sub_bytes.v"
+`include "shift_rows.v"
 
 module aes_top(
 	input i_clock,
@@ -20,7 +21,9 @@ reg [2:0] r_sm_main = 0;
 reg [0:7] state [0:15];
 reg [0:127] r_data = 0;
 wire [0:127] w_data_o_sub_byte;
+wire [0:127] w_data_o_shift_rows;
 reg r_sub_bytes_active = 0;
+reg r_shift_rows_active = 0;
 reg [0:2] clock_counter = 0;
 
 SubBytes sub_bytes (
@@ -28,6 +31,13 @@ SubBytes sub_bytes (
 	.i_data(r_data),
 	.i_active(r_sub_bytes_active),
 	.o_data(w_data_o_sub_byte)
+);
+
+ShiftRows shift_rows (
+	.i_clock(i_clock),
+	.i_data(r_data),
+	.i_active(r_shift_rows_active),
+	.o_data(w_data_o_shift_rows)
 );
 
 always @(posedge i_clock) begin
