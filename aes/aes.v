@@ -1,4 +1,6 @@
 
+`include "sub_bytes.v"
+
 module aes_top(
 	input i_clock,
 	input [0:127] i_plain,
@@ -6,30 +8,73 @@ module aes_top(
 	output [0:127] o_cipher
 );
 
-reg [0:7] state [0:15];
+parameter s_INIT			= 3'b000;
+parameter s_LOAD_INPUT		= 3'b001;
+parameter s_SUB_BYTES 		= 3'b010;
+parameter s_SHIFT_ROWS 		= 3'b011;
+parameter s_MIX_COLUMNS		= 3'b100;
+parameter s_ADD_ROUND_KEY	= 3'b101;
 
-integer i;
+reg [2:0] r_sm_main = 0;
+
+reg [0:7] state [0:15];
+reg [0:127] r_data = 0;
+wire [0:127] w_data_o_sub_byte;
+reg r_sub_bytes_active = 0;
+reg [0:2] clock_counter = 0;
+
+SubBytes sub_bytes (
+	.i_clock(i_clock),
+	.i_data(r_data),
+	.i_active(r_sub_bytes_active),
+	.o_data(w_data_o_sub_byte)
+);
 
 always @(posedge i_clock) begin
+	case (r_sm_main)
+		s_INIT :
+			begin
+				r_sm_main <= s_LOAD_INPUT;
+			end
+		s_LOAD_INPUT : // 001
+			begin
+				r_data <= i_plain;
+				r_sm_main <= s_SUB_BYTES;
+			end
+		s_SUB_BYTES : // 010
+			begin
+				clock_counter = clock_counter + 1;
+				r_sub_bytes_active <= 1'b1;
+				if (clock_counter == 3) begin
+					r_data <= w_data_o_sub_byte;
+					r_sub_bytes_active <= 1'b0;
+					r_sm_main <= s_SHIFT_ROWS;
+				end
+			end
+		s_SHIFT_ROWS : 
+			begin
+				
+			end
+	endcase
+end
 
-	// initialize states from input
-	state[0] <= i_plain[0:7];
-	state[1] <= i_plain[8:15];
-	state[2] <= i_plain[16:23];
-	state[3] <= i_plain[24:31];
-	state[4] <= i_plain[32:39];
-	state[5] <= i_plain[40:47];
-	state[6] <= i_plain[48:55];
-	state[7] <= i_plain[56:63];
-	state[8] <= i_plain[64:71];
-	state[9] <= i_plain[72:79];
-	state[10] <= i_plain[80:87];
-	state[11] <= i_plain[88:95];
-	state[12] <= i_plain[96:103];
-	state[13] <= i_plain[104:111];
-	state[14] <= i_plain[112:119];
-	state[15] <= i_plain[120:127];
-
+always @(r_data) begin
+	state[0] <= r_data[0:7];
+	state[1] <= r_data[8:15];
+	state[2] <= r_data[16:23];
+	state[3] <= r_data[24:31];
+	state[4] <= r_data[32:39];
+	state[5] <= r_data[40:47];
+	state[6] <= r_data[48:55];
+	state[7] <= r_data[56:63];
+	state[8] <= r_data[64:71];
+	state[9] <= r_data[72:79];
+	state[10] <= r_data[80:87];
+	state[11] <= r_data[88:95];
+	state[12] <= r_data[96:103];
+	state[13] <= r_data[104:111];
+	state[14] <= r_data[112:119];
+	state[15] <= r_data[120:127];
 end
 
 // For Gtkwave debug
