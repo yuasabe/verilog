@@ -1,0 +1,25 @@
+[*]
+[*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
+[*] Sun Dec  1 05:00:09 2019
+[*]
+[dumpfile] "/home/denjo/Developer/verilog/aes/aes_tb.vcd"
+[dumpfile_mtime] "Sun Dec  1 04:59:26 2019"
+[dumpfile_size] 3387
+[savefile] "/home/denjo/Developer/verilog/aes/aes_tb.gtkw"
+[timestart] 0
+[size] 1920 1013
+[pos] -1 -1
+*-20.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] aes_tb.
+[sst_width] 280
+[signals_width] 300
+[sst_expanded] 1
+[sst_vpaned_height] 280
+@28
+aes_tb.r_clock
+@22
+aes_tb.r_key[0:127]
+aes_tb.r_plain[0:127]
+aes_tb.w_cipher[0:127]
+[pattern_trace] 1
+[pattern_trace] 0
