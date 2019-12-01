@@ -58,10 +58,22 @@ always @(posedge i_clock) begin
 				if (clock_counter == 3) begin
 					r_data <= w_data_o_sub_byte;
 					r_sub_bytes_active <= 1'b0;
+					clock_counter <= 0;
 					r_sm_main <= s_SHIFT_ROWS;
 				end
 			end
-		s_SHIFT_ROWS : 
+		s_SHIFT_ROWS : // 011
+			begin
+				clock_counter = clock_counter + 1;
+				r_shift_rows_active <= 1'b1;
+				if (clock_counter == 3) begin
+					r_data <= w_data_o_shift_rows;
+					r_shift_rows_active <= 1'b0;
+					clock_counter <= 0;
+					r_sm_main <= s_MIX_COLUMNS;
+				end
+			end
+		s_MIX_COLUMNS :
 			begin
 				
 			end

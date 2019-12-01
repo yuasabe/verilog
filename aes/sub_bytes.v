@@ -6,7 +6,7 @@ module SubBytes(
 );
 
 reg [0:127] r_data;
-reg [0:7] r_state [0:15];
+// reg [0:7] r_state [0:15];
 wire [0:7] sbox [0:255];
 
 always @(posedge i_clock) begin
