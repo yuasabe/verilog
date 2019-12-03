@@ -88,6 +88,10 @@ module uart_tb();
       r_tx_dv <= 1'b1;
       r_tx_byte <= 8'hAB;
       @(posedge r_clock);
+      @(posedge r_clock);
+      @(posedge r_clock);
+      @(posedge r_clock);
+      @(posedge r_clock);
       r_tx_dv <= 1'b0;
       @(posedge w_tx_done);
        
