@@ -1,16 +1,17 @@
 [*]
 [*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
-[*] Sun Dec  1 05:00:09 2019
+[*] Tue Dec  3 04:16:46 2019
 [*]
 [dumpfile] "/home/denjo/Developer/verilog/aes/aes_tb.vcd"
-[dumpfile_mtime] "Sun Dec  1 04:59:26 2019"
-[dumpfile_size] 3387
+[dumpfile_mtime] "Tue Dec  3 04:14:54 2019"
+[dumpfile_size] 7236
 [savefile] "/home/denjo/Developer/verilog/aes/aes_tb.gtkw"
 [timestart] 0
 [size] 1920 1013
-[pos] -1 -1
-*-20.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -96 -96
+*-18.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] aes_tb.
+[treeopen] aes_tb.aes_top_inst.
 [sst_width] 280
 [signals_width] 300
 [sst_expanded] 1
@@ -21,5 +22,22 @@ aes_tb.r_clock
 aes_tb.r_key[0:127]
 aes_tb.r_plain[0:127]
 aes_tb.w_cipher[0:127]
+@23
+aes_tb.aes_top_inst.state_0[0:7]
+aes_tb.aes_top_inst.state_1[0:7]
+aes_tb.aes_top_inst.state_2[0:7]
+aes_tb.aes_top_inst.state_3[0:7]
+aes_tb.aes_top_inst.state_4[0:7]
+aes_tb.aes_top_inst.state_5[0:7]
+aes_tb.aes_top_inst.state_6[0:7]
+aes_tb.aes_top_inst.state_7[0:7]
+aes_tb.aes_top_inst.state_8[0:7]
+aes_tb.aes_top_inst.state_9[0:7]
+aes_tb.aes_top_inst.state_10[0:7]
+aes_tb.aes_top_inst.state_11[0:7]
+aes_tb.aes_top_inst.state_12[0:7]
+aes_tb.aes_top_inst.state_13[0:7]
+aes_tb.aes_top_inst.state_14[0:7]
+aes_tb.aes_top_inst.state_15[0:7]
 [pattern_trace] 1
 [pattern_trace] 0

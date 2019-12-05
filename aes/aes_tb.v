@@ -27,10 +27,12 @@ initial begin
 	$dumpvars;
 
 	@(posedge r_clock);
-	r_plain <= 128'h00112233445566778899aabbccddeeff;
-	r_key <= 128'h000102030405060708090a0b0c0d0e0f;
+	// r_plain <= 128'h00112233445566778899aabbccddeeff;
+	r_plain <= 128'h3243f6a8885a308d313198a2e0370734;
+	// r_key <= 128'h000102030405060708090a0b0c0d0e0f;
+	r_key <= 128'h2b7e151628aed2a6abf7158809cf4f3c;
 
-	#10000;
+	#1000000;
 	$finish;
 end
 endmodule
