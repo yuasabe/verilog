@@ -38,7 +38,7 @@ initial begin
 	// r_key <= 128'h000102030405060708090a0b0c0d0e0f;
 	// r_key <= 128'h2b7e151628aed2a6abf7158809cf4f3c;
 
-	#1000000000;
+	#10000000;
 	$finish;
 end
 endmodule

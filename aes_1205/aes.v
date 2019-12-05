@@ -34,8 +34,6 @@ parameter s_CREATE_ROUND_KEY_3 = 5'b10000;
 parameter s_CREATE_ROUND_KEY_DONE = 5'b10001;
 parameter s_ADD_ROUND_KEY_DONE = 5'b10010;
 
-
-
 reg [4:0] r_sm_main = 0;
 
 reg [0:7] state [0:15];
@@ -119,6 +117,7 @@ always @(posedge i_clock) begin
 		s_LOAD_INPUT : // 001
 			begin
 				r_data <= i_plain;
+<<<<<<< HEAD
 				r_sm_main <= s_INITIAL_ADD_ROUND_KEY_BEGIN;
 			end
 		s_INITIAL_ADD_ROUND_KEY_BEGIN : // 010
@@ -190,6 +189,67 @@ always @(posedge i_clock) begin
 			begin
 				r_create_round_key_active <= 1'b0;
 				r_sm_main <= s_CHANGE_ROUND_KEY;
+=======
+				r_sm_main <= s_INITIAL_ADD_ROUND_KEY;
+			end
+		s_INITIAL_ADD_ROUND_KEY : // 010
+			begin
+				clock_counter = clock_counter + 1;
+				r_add_round_key_active <= 1'b1;
+				if (clock_counter == 3) begin
+					r_data <= w_data_o_add_round_key;
+					r_add_round_key_active <= 1'b0;
+					clock_counter <= 0;
+					r_sm_main <= s_SUB_BYTES;
+				end
+			end
+		s_SUB_BYTES : // 011
+			begin
+				clock_counter = clock_counter + 1;
+				r_sub_bytes_active <= 1'b1;
+				if (clock_counter == 3) begin
+					r_data <= w_data_o_sub_byte;
+					r_sub_bytes_active <= 1'b0;
+					clock_counter <= 0;
+					r_sm_main <= s_SHIFT_ROWS;
+				end
+			end
+		s_SHIFT_ROWS : // 100
+			begin
+				clock_counter = clock_counter + 1;
+				r_shift_rows_active <= 1'b1;
+				if (clock_counter == 3) begin
+					r_data <= w_data_o_shift_rows;
+					r_shift_rows_active <= 1'b0;
+					clock_counter <= 0;
+					r_sm_main <= s_MIX_COLUMNS;
+				end
+			end
+		s_MIX_COLUMNS :
+			begin
+				if (r_round_num < 9) begin
+					clock_counter = clock_counter + 1;
+					r_mix_columns_active <= 1'b1;
+					if (clock_counter == 3) begin
+						r_data <= w_data_o_mix_columns;
+						r_mix_columns_active <= 1'b0;
+						clock_counter <= 0;
+						r_sm_main <= s_CREATE_ROUND_KEY;
+					end
+				end else begin
+					r_sm_main <= s_CREATE_ROUND_KEY;
+				end
+			end
+		s_CREATE_ROUND_KEY : 
+			begin
+				clock_counter = clock_counter + 1;
+				r_create_round_key_active <= 1'b1;
+				if (clock_counter == 5) begin
+					r_create_round_key_active <= 1'b0;
+					clock_counter <= 0;
+					r_sm_main <= s_CHANGE_ROUND_KEY;
+				end
+>>>>>>> 7abaaaf91115c8fe622e46f8c2921d50c3c53e7d
 			end
 		s_CHANGE_ROUND_KEY :
 			begin
@@ -197,6 +257,7 @@ always @(posedge i_clock) begin
 				r_key1 <= w_key1_next;
 				r_key2 <= w_key2_next;
 				r_key3 <= w_key3_next;
+<<<<<<< HEAD
 				r_sm_main <= s_ADD_ROUND_KEY_BEGIN;
 			end
 		s_ADD_ROUND_KEY_BEGIN : 
@@ -213,6 +274,24 @@ always @(posedge i_clock) begin
 					r_sm_main <= s_SUB_BYTES_BEGIN;
 				end else begin
 					r_sm_main <= s_END;
+=======
+				r_sm_main <= s_ADD_ROUND_KEY;
+			end
+		s_ADD_ROUND_KEY : 
+			begin
+				clock_counter = clock_counter + 1;
+				r_add_round_key_active <= 1'b1;
+				if (clock_counter == 3) begin
+					r_data <= w_data_o_add_round_key;
+					r_add_round_key_active <= 1'b0;
+					clock_counter <= 0;
+					r_round_num <= r_round_num + 1;
+					if (r_round_num < 9) begin
+						r_sm_main <= s_SUB_BYTES;
+					end else begin
+						r_sm_main <= s_END;
+					end
+>>>>>>> 7abaaaf91115c8fe622e46f8c2921d50c3c53e7d
 				end
 			end
 		s_END : 
