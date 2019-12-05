@@ -10,7 +10,7 @@ parameter c_CLOCK_PERIOD_NS = 100;
 reg r_clock = 0;
 reg [0:127] r_plain = 0;
 reg [0:127] r_key = 0;
-wire [0:127] w_cipher = 0;
+wire [0:127] w_cipher;
 
 aes_top aes_top_inst (
 	.i_clock(r_clock),

@@ -95,6 +95,20 @@ CreateRoundKey create_round_key (
 	.o_key3(w_key3_next)
 );
 
+wire [7:0] uart_IN_data;
+wire uart_we;
+wire uart_OUT_data;
+
+uart uart0(
+    .uart_tx(uart_OUT_data),
+    .uart_wr_i(uart_we),
+    .uart_dat_i(uart_IN_data),
+    .sys_clk_i(i_clock),
+    .sys_rstn_i(cpu_resetn)
+);
+
+assign uart_tx = uart_OUT_data;
+
 always @(posedge i_clock) begin
 	case (r_sm_main)
 		s_INIT : // 000
