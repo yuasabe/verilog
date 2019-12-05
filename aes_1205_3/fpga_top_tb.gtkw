@@ -1,0 +1,21 @@
+[*]
+[*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
+[*] Thu Dec  5 07:29:02 2019
+[*]
+[dumpfile] "/home/denjo/Developer/verilog/aes_1205_3/fpga_top_tb.vcd"
+[dumpfile_mtime] "Thu Dec  5 07:27:40 2019"
+[dumpfile_size] 3086291
+[savefile] "/home/denjo/Developer/verilog/aes_1205_3/fpga_top_tb.gtkw"
+[timestart] 0
+[size] 1920 1013
+[pos] -39 -39
+*-21.000000 1260000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 280
+[signals_width] 192
+[sst_expanded] 1
+[sst_vpaned_height] 280
+@28
+fpga_top_tb.r_clock
+fpga_top_tb.w_uart_tx
+[pattern_trace] 1
+[pattern_trace] 0
