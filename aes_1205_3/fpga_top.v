@@ -51,6 +51,7 @@ uart uart0(
 
 aes_top aes_top(
 	.i_clock(clk),
+	.i_rst(rst_n),
 	.i_plain(r_plain),
 	.i_key(r_key),
 	.o_cipher(w_cipher),
@@ -91,48 +92,52 @@ parameter s_UART_RETURN = 3'b101;
 parameter s_FINISH = 3'b110;
 
 always @(posedge clk) begin
-	case (r_sm_main)
-		s_ENCODE : begin
-			r_LED_W <= 1;
-			// r_plain <= 128'h3243f6a8885a308d313198a2e0370734;
-			// r_key <= 128'h2b7e151628aed2a6abf7158809cf4f3c;
-			if (w_is_done) begin
-				r_LED_E <= 1;
-				r_sm_main <= s_UART_BEGIN;
-			end
-		end
-		s_UART_BEGIN : begin
-			if(counter != 5'b10000) begin 
-				r_rst_sm <= 0;
-				r_LED_W <= 0;
-				r_uart_we <= 1;
-				r_tx_byte <= w_data[counter];
-				r_sm_main <= s_UART_TRANSFERING;
-			end else begin
-				r_sm_main <= s_FINISH;
-			end
-		end
-		s_UART_TRANSFERING : begin
-			r_uart_we <= 0;
-			r_sm_main <= s_UART_TRANSFERING_2;
-		end
-		s_UART_TRANSFERING_2 : begin
-			r_sm_main <= s_UART_WAIT_DONE;
-		end
-		s_UART_WAIT_DONE : begin
-			if (~uart_busy) begin // not busy
+	if (rst_n) begin
+		r_sm_main <= s_ENCODE;
+	end else begin
+		case (r_sm_main)
+			s_ENCODE : begin
 				r_LED_W <= 1;
-				r_sm_main <= s_UART_RETURN;
+				// r_plain <= 128'h3243f6a8885a308d313198a2e0370734;
+				// r_key <= 128'h2b7e151628aed2a6abf7158809cf4f3c;
+				if (w_is_done) begin
+					r_LED_E <= 1;
+					r_sm_main <= s_UART_BEGIN;
+				end
 			end
-		end
-		s_UART_RETURN : begin
-			r_sm_main <= s_UART_BEGIN;
-			counter <= counter + 1'b1;
-		end
-		s_FINISH : begin
-			r_LED_C <= 1;
-		end
-	endcase
+			s_UART_BEGIN : begin
+				if(counter != 5'b10000) begin 
+					r_rst_sm <= 0;
+					r_LED_W <= 0;
+					r_uart_we <= 1;
+					r_tx_byte <= w_data[counter];
+					r_sm_main <= s_UART_TRANSFERING;
+				end else begin
+					r_sm_main <= s_FINISH;
+				end
+			end
+			s_UART_TRANSFERING : begin
+				r_uart_we <= 0;
+				r_sm_main <= s_UART_TRANSFERING_2;
+			end
+			s_UART_TRANSFERING_2 : begin
+				r_sm_main <= s_UART_WAIT_DONE;
+			end
+			s_UART_WAIT_DONE : begin
+				if (~uart_busy) begin // not busy
+					r_LED_W <= 1;
+					r_sm_main <= s_UART_RETURN;
+				end
+			end
+			s_UART_RETURN : begin
+				r_sm_main <= s_UART_BEGIN;
+				counter <= counter + 1'b1;
+			end
+			s_FINISH : begin
+				r_LED_C <= 1;
+			end
+		endcase
+	end
 end
 
 
