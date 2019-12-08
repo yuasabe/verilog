@@ -2,6 +2,14 @@
 
 `include "fpga_top.v"
 
+`define assert(signal, value) \
+	if (signal !== value) begin \
+	    $display("ASSERTION FAILED in %m: signal != value"); \
+	    $finish; \
+	end else begin \
+		$display("ASSERTION OK in %m"); \
+	end
+
 module fpga_top_tb();
 
 // Testbench uses a 10 MHz clock
@@ -39,6 +47,10 @@ initial begin
 	// r_key <= 128'h2b7e151628aed2a6abf7158809cf4f3c;
 
 	#10000000;
+
+	`assert(fpga_top.r_plain, 128'h3243f6a8885a308d313198a2e0370734);
+	`assert(fpga_top.r_key, 128'h2b7e151628aed2a6abf7158809cf4f3c);
+	`assert(fpga_top.w_cipher, 128'h3925841d02dc09fbdc118597196a0b32);
 	$finish;
 end
 endmodule
