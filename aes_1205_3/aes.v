@@ -8,6 +8,7 @@
 
 module aes_top(
 	input i_clock,
+	input i_rst,
 	input [0:127] i_plain,
 	input [0:127] i_key,
 	output [0:127] o_cipher,
@@ -33,10 +34,11 @@ parameter s_CREATE_ROUND_KEY_2 = 5'b01111;
 parameter s_CREATE_ROUND_KEY_3 = 5'b10000;
 parameter s_CREATE_ROUND_KEY_DONE = 5'b10001;
 parameter s_ADD_ROUND_KEY_DONE = 5'b10010;
+parameter s_IDLE = 5'b10011;
 
 
 
-reg [4:0] r_sm_main = 0;
+reg [4:0] r_sm_main = s_IDLE;
 
 reg [0:7] state [0:15];
 reg [0:127] r_data = 0;
@@ -49,7 +51,6 @@ reg r_shift_rows_active = 0;
 reg r_mix_columns_active = 0;
 reg r_add_round_key_active = 0;
 reg r_create_round_key_active = 0;
-reg [0:2] clock_counter = 0;
 reg [0:31] r_key0 = 32'h2b7e1516;
 reg [0:31] r_key1 = 32'h28aed2a6;
 reg [0:31] r_key2 = 32'habf71588;
@@ -110,116 +111,127 @@ CreateRoundKey create_round_key (
 );
 
 always @(posedge i_clock) begin
-	case (r_sm_main)
-		s_INIT : // 000
-			begin
-				r_is_done <= 0;
-				r_sm_main <= s_LOAD_INPUT;
-			end
-		s_LOAD_INPUT : // 001
-			begin
-				r_data <= i_plain;
-				r_sm_main <= s_INITIAL_ADD_ROUND_KEY_BEGIN;
-			end
-		s_INITIAL_ADD_ROUND_KEY_BEGIN : // 010
-			begin
-				r_add_round_key_active <= 1'b1;
-				r_sm_main <= s_INITIAL_ADD_ROUND_KEY_DONE;
-			end
-		s_INITIAL_ADD_ROUND_KEY_DONE : 
-			begin
-				r_data <= w_data_o_add_round_key;
-				r_add_round_key_active <= 1'b0;
-				r_sm_main <= s_SUB_BYTES_BEGIN;
-			end
-		s_SUB_BYTES_BEGIN : // 011
-			begin
-				r_sub_bytes_active <= 1'b1;
-				r_sm_main <= s_SUB_BYTES_DONE;
-			end
-		s_SUB_BYTES_DONE : // 011
-			begin
-				r_data <= w_data_o_sub_byte;
-				r_sub_bytes_active <= 1'b0;
-				r_sm_main <= s_SHIFT_ROWS_BEGIN;
-			end
-		s_SHIFT_ROWS_BEGIN : // 100
-			begin
-				r_shift_rows_active <= 1'b1;
-				r_sm_main <= s_SHIFT_ROWS_DONE;
-			end
-		s_SHIFT_ROWS_DONE :
-			begin
-				r_data <= w_data_o_shift_rows;
-				r_shift_rows_active <= 1'b0;
-				r_sm_main <= s_MIX_COLUMNS_BEGIN;
-			end
-		s_MIX_COLUMNS_BEGIN :
-			begin
-				if (r_round_num < 9) begin
-					r_mix_columns_active <= 1'b1;
-					r_sm_main <= s_MIX_COLUMNS_DONE;
-				end else begin
+	if (i_rst) begin
+		r_sm_main <= s_INIT;
+		r_key0 <= i_key[0:31];
+		r_key1 <= i_key[32:63];
+		r_key2 <= i_key[64:95];
+		r_key3 <= i_key[96:127];
+		r_data <= 0;
+		r_round_num <= 0;
+	end else begin
+		case (r_sm_main)
+			s_INIT : // 000
+				begin
+					r_is_done <= 0;
+					r_sm_main <= s_LOAD_INPUT;
+				end
+			s_LOAD_INPUT : // 001
+				begin
+					r_data <= i_plain;
+					r_sm_main <= s_INITIAL_ADD_ROUND_KEY_BEGIN;
+				end
+			s_INITIAL_ADD_ROUND_KEY_BEGIN : // 010
+				begin
+					r_add_round_key_active <= 1'b1;
+					r_sm_main <= s_INITIAL_ADD_ROUND_KEY_DONE;
+				end
+			s_INITIAL_ADD_ROUND_KEY_DONE : 
+				begin
+					r_data <= w_data_o_add_round_key;
+					r_add_round_key_active <= 1'b0;
+					r_sm_main <= s_SUB_BYTES_BEGIN;
+				end
+			s_SUB_BYTES_BEGIN : // 011
+				begin
+					r_sub_bytes_active <= 1'b1;
+					r_sm_main <= s_SUB_BYTES_DONE;
+				end
+			s_SUB_BYTES_DONE : // 011
+				begin
+					r_data <= w_data_o_sub_byte;
+					r_sub_bytes_active <= 1'b0;
+					r_sm_main <= s_SHIFT_ROWS_BEGIN;
+				end
+			s_SHIFT_ROWS_BEGIN : // 100
+				begin
+					r_shift_rows_active <= 1'b1;
+					r_sm_main <= s_SHIFT_ROWS_DONE;
+				end
+			s_SHIFT_ROWS_DONE :
+				begin
+					r_data <= w_data_o_shift_rows;
+					r_shift_rows_active <= 1'b0;
+					r_sm_main <= s_MIX_COLUMNS_BEGIN;
+				end
+			s_MIX_COLUMNS_BEGIN :
+				begin
+					if (r_round_num < 9) begin
+						r_mix_columns_active <= 1'b1;
+						r_sm_main <= s_MIX_COLUMNS_DONE;
+					end else begin
+						r_sm_main <= s_CREATE_ROUND_KEY_0;
+					end
+				end
+			s_MIX_COLUMNS_DONE :
+				begin
+					r_data <= w_data_o_mix_columns;
+					r_mix_columns_active <= 1'b0;
 					r_sm_main <= s_CREATE_ROUND_KEY_0;
 				end
-			end
-		s_MIX_COLUMNS_DONE :
-			begin
-				r_data <= w_data_o_mix_columns;
-				r_mix_columns_active <= 1'b0;
-				r_sm_main <= s_CREATE_ROUND_KEY_0;
-			end
-		s_CREATE_ROUND_KEY_0 : 
-			begin
-				r_create_round_key_active <= 1'b1;
-				r_sm_main <= s_CREATE_ROUND_KEY_1;
-			end
-		s_CREATE_ROUND_KEY_1 :
-			begin
-				r_sm_main <= s_CREATE_ROUND_KEY_2;
-			end
-		s_CREATE_ROUND_KEY_2 :
-			begin
-				r_sm_main <= s_CREATE_ROUND_KEY_3;
-			end
-		s_CREATE_ROUND_KEY_3 :
-			begin
-				r_sm_main <= s_CREATE_ROUND_KEY_DONE;
-			end
-		s_CREATE_ROUND_KEY_DONE :
-			begin
-				r_create_round_key_active <= 1'b0;
-				r_sm_main <= s_CHANGE_ROUND_KEY;
-			end
-		s_CHANGE_ROUND_KEY :
-			begin
-				r_key0 <= w_key0_next;
-				r_key1 <= w_key1_next;
-				r_key2 <= w_key2_next;
-				r_key3 <= w_key3_next;
-				r_sm_main <= s_ADD_ROUND_KEY_BEGIN;
-			end
-		s_ADD_ROUND_KEY_BEGIN : 
-			begin
-				r_add_round_key_active <= 1'b1;
-				r_sm_main <= s_ADD_ROUND_KEY_DONE;
-			end
-		s_ADD_ROUND_KEY_DONE :
-			begin
-				r_data <= w_data_o_add_round_key;
-				r_add_round_key_active <= 1'b0;
-				r_round_num <= r_round_num + 1;
-				if (r_round_num < 9) begin
-					r_sm_main <= s_SUB_BYTES_BEGIN;
-				end else begin
-					r_sm_main <= s_END;
+			s_CREATE_ROUND_KEY_0 : 
+				begin
+					r_create_round_key_active <= 1'b1;
+					r_sm_main <= s_CREATE_ROUND_KEY_1;
 				end
-			end
-		s_END : 
-			begin
-				r_is_done <= 1;
-			end
-	endcase
+			s_CREATE_ROUND_KEY_1 :
+				begin
+					r_sm_main <= s_CREATE_ROUND_KEY_2;
+				end
+			s_CREATE_ROUND_KEY_2 :
+				begin
+					r_sm_main <= s_CREATE_ROUND_KEY_3;
+				end
+			s_CREATE_ROUND_KEY_3 :
+				begin
+					r_sm_main <= s_CREATE_ROUND_KEY_DONE;
+				end
+			s_CREATE_ROUND_KEY_DONE :
+				begin
+					r_create_round_key_active <= 1'b0;
+					r_sm_main <= s_CHANGE_ROUND_KEY;
+				end
+			s_CHANGE_ROUND_KEY :
+				begin
+					r_key0 <= w_key0_next;
+					r_key1 <= w_key1_next;
+					r_key2 <= w_key2_next;
+					r_key3 <= w_key3_next;
+					r_sm_main <= s_ADD_ROUND_KEY_BEGIN;
+				end
+			s_ADD_ROUND_KEY_BEGIN : 
+				begin
+					r_add_round_key_active <= 1'b1;
+					r_sm_main <= s_ADD_ROUND_KEY_DONE;
+				end
+			s_ADD_ROUND_KEY_DONE :
+				begin
+					r_data <= w_data_o_add_round_key;
+					r_add_round_key_active <= 1'b0;
+					r_round_num <= r_round_num + 1;
+					if (r_round_num < 9) begin
+						r_sm_main <= s_SUB_BYTES_BEGIN;
+					end else begin
+						r_sm_main <= s_END;
+					end
+				end
+			s_END : 
+				begin
+					r_is_done <= 1;
+					// r_sm_main <= s_IDLE;
+				end
+		endcase
+	end
 end
 
 assign o_cipher = r_data;
