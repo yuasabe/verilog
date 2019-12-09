@@ -2,6 +2,7 @@
 
 `include "uart.v"
 `include "aes.v"
+`include "aes_dec.v"
 
 module fpga_top(
 	input clk, // AD8 100MHz
@@ -35,10 +36,17 @@ reg r_uart_we;
 wire uart_OUT_data;
 wire uart_busy;
 
-reg [0:127] r_plain = 128'h3243f6a8885a308d313198a2e0370734;
-reg [0:127] r_key = 128'h2b7e151628aed2a6abf7158809cf4f3c;
+// reg [0:127] r_plain = 128'h3243f6a8885a308d313198a2e0370734;
+reg [0:127] r_plain = 128'h00112233445566778899aabbccddeeff;
+// reg [0:127] r_key = 128'h2b7e151628aed2a6abf7158809cf4f3c;
+reg [0:127] r_key = 128'h000102030405060708090a0b0c0d0e0f;
+
 wire [0:127] w_cipher;
+wire [0:127] w_plain;
 wire w_is_done;
+wire w_is_dec_done;
+
+reg r_is_dec_active;
 	 
 uart uart0(
 	.uart_tx(uart_OUT_data),
@@ -56,6 +64,16 @@ aes_top aes_top(
 	.i_key(r_key),
 	.o_cipher(w_cipher),
 	.o_is_done(w_is_done)
+);
+
+aes_dec_top aes_dec_top(
+	.i_clock(clk),
+	.i_rst(rst_n),
+	.i_is_active(r_is_dec_active),
+	.i_cipher(w_cipher),
+	.i_key(r_key),
+	.o_plain(w_plain),
+	.o_is_done(w_is_dec_done)
 );
 	 
 assign uart_tx = uart_OUT_data;
@@ -90,6 +108,7 @@ parameter s_UART_TRANSFERING_2 = 3'b011;
 parameter s_UART_WAIT_DONE = 3'b100;
 parameter s_UART_RETURN = 3'b101;
 parameter s_FINISH = 3'b110;
+parameter s_DECODE = 3'b111;
 
 always @(posedge clk) begin
 	if (rst_n) begin
@@ -98,6 +117,7 @@ always @(posedge clk) begin
 		case (r_sm_main)
 			s_ENCODE : begin
 				r_LED_W <= 1;
+				r_is_dec_active <= 0;
 				// r_plain <= 128'h3243f6a8885a308d313198a2e0370734;
 				// r_key <= 128'h2b7e151628aed2a6abf7158809cf4f3c;
 				if (w_is_done) begin
@@ -112,8 +132,8 @@ always @(posedge clk) begin
 					r_uart_we <= 1;
 					r_tx_byte <= w_data[counter];
 					r_sm_main <= s_UART_TRANSFERING;
-				end else begin
-					r_sm_main <= s_FINISH;
+				end else begin // UART is done
+					r_sm_main <= s_DECODE;
 				end
 			end
 			s_UART_TRANSFERING : begin
@@ -135,6 +155,15 @@ always @(posedge clk) begin
 			end
 			s_FINISH : begin
 				r_LED_C <= 1;
+			end
+			s_DECODE : begin
+				r_LED_W <= 1;
+				counter <= 5'b00000;
+				r_is_dec_active <= 1;
+				if (w_is_dec_done) begin
+					r_LED_E <= 1;
+					r_sm_main <= s_UART_BEGIN;
+				end
 			end
 		endcase
 	end
